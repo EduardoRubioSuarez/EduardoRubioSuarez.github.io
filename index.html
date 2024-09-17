@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="Juego_Style.css">
+</head>
+<body>
+    <div class="title">
+        <h1>ESCAPE DE LA CLASE DEL JONA</h1>
+    </div>
+    <div class="subtitle">
+        <p>Ayuda a los estudantes de IDS a escapar antes de quedarse dormidos</p>
+    </div>
+    <div class="buttons">
+        <button class="btn-lvl" onclick="showCanvas('3x3')">NIVELES 3X3</button>
+        <button class="btn-lvl" onclick="showCanvas('5x5')">NIVELES 5X5</button>
+        <button class="btn-lvl" onclick="showCanvas('10x10')">NIVELES 10X10</button>
+    </div>
+
+    <div class="canvasSpace">
+        <canvas id="my_canvas" width="700" height="500" style="display:none;"></canvas>
+    </div>
+
+    <audio id="musicaFondo" src="./media/musicaFondo.mp3" loop></audio>
+
+    <script>
+        let gameInstance;
+        let currentLevel = null;
+
+        function showCanvas(level) {
+            const canvas = document.getElementById('my_canvas');
+            const musicaFondo = document.getElementById('musicaFondo');
+
+            if (gameInstance) {
+                if (typeof gameInstance.stop === 'function') {
+                    gameInstance.stop();
+                }
+                cancelAnimationFrame(gameInstance);
+            }
+
+            if (currentLevel !== null && typeof window[`stopJuego${currentLevel}`] === 'function') {
+                window[`stopJuego${currentLevel}`]();
+            }
+
+            currentLevel = level; 
+
+            if (!musicaFondo.paused) {
+                musicaFondo.pause();
+            }
+
+            canvas.style.display = 'block';
+
+            const oldScript = document.getElementById('gameScript');
+            if (oldScript) {
+                oldScript.remove();
+            }
+
+            const script = document.createElement('script');
+            script.src = `Juego${level}.js`;
+            script.id = 'gameScript';
+            document.body.appendChild(script);
+
+            if (musicaFondo.paused) {
+                musicaFondo.play();
+            }
+
+            script.onload = function() {
+                if (typeof window[`iniciarJuego${level}`] === 'function') {
+                    window[`iniciarJuego${level}`]();
+                }
+            };
+        }
+    </script>
+</body>
+</html>
